@@ -5,12 +5,12 @@
 
   var cur_video_blob = null;
   var fb_instance;
-  var waiting = false;
-  var wait_vid = null;
-  var wait_message = null;
-  var video = null;
-  var message = null;
-  var vidtoggle = true;
+  var waiting = false; //keeping track of if we're waiting for response on whether to send video
+  var wait_vid = null; //storing the video we're waiting on
+  var wait_message = null; //storing the message we're waiting on
+  var video = null; //storing the video element displayed to user before video is sent
+  var message = null; //storing the message displayed to user before video sent
+  var vidtoggle = true; //storing whether or not videos are turned on
   $(document).ready(function(){
     connect_to_chat_firebase();
     connect_webcam();
@@ -59,19 +59,19 @@
     $("#submission input").keydown(function( event ) {
       if (event.which == 13) {
 		if (vidtoggle) {
-			if ($(this).val() == "<VT>") {
+			if ($(this).val() == "<VT>") { //turn off video
 				vidtoggle = false;
 				display_msg({m:"Video messages turned off!",c:"red"});
 				$(this).val("");
 			}
-			else {
+			else { 
 				if (cur_video_blob == null) {
 					fb_instance_stream.push({m:username+": " +$(this).val(), c: my_color});
 					$(this).val("");
 					scroll_to_bottom(0);
 				}
 				else {
-					if (waiting) {
+					if (waiting) { //check if they said yes and send video or not depending
 						document.getElementById("conversation").removeChild(video);
 						document.getElementById("conversation").removeChild(message);
 						if ($(this).val() == "y") fb_instance_stream.push({m:username+": " +wait_message, v:wait_vid, c: my_color});
@@ -81,7 +81,7 @@
 						$(this).val("");
 						scroll_to_bottom(0);
 					}
-					else {
+					else { //get the wait video and display to just sending user
 						wait_vid = cur_video_blob;
 						wait_message = $(this).val();
 						waiting = true;
@@ -101,11 +101,6 @@
 
 						video.appendChild(source);
 						document.getElementById("conversation").appendChild(video);
-						// if(has_emotions($(this).val())){
-						  // fb_instance_stream.push({m:username+": " +$(this).val(), v:cur_video_blob, c: my_color});
-						// }else{
-						  // fb_instance_stream.push({m:username+": " +$(this).val(), c: my_color});
-						// }
 						$(this).val("");
 						scroll_to_bottom(0);
 					}
@@ -113,12 +108,12 @@
 			}
 		}
 		else {
-			if ($(this).val() == "<VT>") {
+			if ($(this).val() == "<VT>") { //turning on video messages
 				vidtoggle = true;
 				display_msg({m:"Video messages turned on!",c:"red"});
 				$(this).val("");
 			}
-			else {
+			else { //sending normal message as videos are turned off
 				fb_instance_stream.push({m:username+": " +$(this).val(), c: my_color});
 				$(this).val("");
 			}
